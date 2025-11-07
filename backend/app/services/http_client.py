@@ -4,7 +4,9 @@ from app.core.config import settings
 
 # Usamos um AsyncClient para chamadas de API assíncronas
 # Isso evita que nosso servidor trave enquanto espera a resposta do ML/LLM
-client = httpx.AsyncClient()
+client = httpx.AsyncClient(
+    timeout=30.0  # timeout de 30 segundos
+)
 
 async def call_ml_service(data: dict) -> dict:
     """
@@ -32,17 +34,19 @@ async def call_ml_service(data: dict) -> dict:
         )
 
 async def call_llm_service(data: dict) -> dict:
-    """
-    Chama o microserviço do Agente LLM.
-    """
-    url = settings.LLM_SERVICE_URL # "http://localhost:8003/generate-actions"
-    
+    url = settings.LLM_SERVICE_URL
+    print(f"🔗 Chamando LLM em: {url}")
+    print(f"📦 Payload enviado: {data}")
+
     try:
         response = await client.post(url, json=data)
+        print(f"📬 Resposta do LLM: {response.status_code}")
+        print(await response.aread())  # mostra o corpo bruto
         response.raise_for_status()
-        return response.json() # Esperamos algo como {"acoes_geradas": "..."}
-    
+        return response.json()
+
     except httpx.RequestError as e:
+        print(f"❌ Erro de conexão: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Serviço de geração de ações (LLM) está offline: {e}"

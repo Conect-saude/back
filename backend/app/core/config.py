@@ -18,3 +18,10 @@ class Settings(BaseSettings):
 
 # Instância única que será importada por outros arquivos
 settings = Settings()
+
+# --- ADICIONE ESTAS LINHAS DE DEBUG ---
+print("--- CONFIGURAÇÃO DO BACKEND CARREGADA ---")
+print(f"URL do ML lida do .env: {settings.ML_SERVICE_URL}")
+print(f"URL do LLM lida do .env: {settings.LLM_SERVICE_URL}")
+print("---------------------------------------")
+# --- FIM DO DEBUG ---

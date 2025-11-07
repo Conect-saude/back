@@ -47,3 +47,10 @@ def get_multi(
     )
     
     return pacientes, total
+
+
+def remove(db: Session, *, id: int) -> None:
+    """Remove um paciente do banco pelo ID."""
+    obj = db.query(Paciente).get(id)
+    db.delete(obj)
+    db.commit()

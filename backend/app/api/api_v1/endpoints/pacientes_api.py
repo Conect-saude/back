@@ -7,7 +7,7 @@ from app.api.deps import get_current_user
 from app.models.user_models import User # Necessário para a dependência
 from app.schemas import paciente_schema
 from app.services import paciente_service
-from app import crud
+from app.crud import crud_paciente as crud
 
 router = APIRouter()
 
@@ -57,6 +57,9 @@ def list_pacientes_endpoint(
     )
 
 
+    return paciente
+
+
 @router.get("/{id}", response_model=paciente_schema.Paciente)
 def get_paciente_by_id_endpoint(
     *,
@@ -75,3 +78,46 @@ def get_paciente_by_id_endpoint(
             detail="Paciente não encontrado",
         )
     return paciente
+
+
+@router.put("/{id}", response_model=paciente_schema.Paciente)
+async def update_paciente_endpoint(
+    *,
+    db: Session = Depends(get_db),
+    id: int,
+    paciente_in: paciente_schema.PacienteCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Atualiza um paciente e re-executa o fluxo de orquestração (ML/LLM).
+    Corresponde ao 'updatePaciente' do api.ts.
+    """
+    paciente = await paciente_service.update_paciente_with_orchestration(
+        db, id=id, paciente_in=paciente_in
+    )
+    if not paciente:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Paciente não encontrado",
+        )
+    return paciente
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_paciente_endpoint(
+    *,
+    db: Session = Depends(get_db),
+    id: int,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Remove um paciente.
+    Corresponde ao 'deletePaciente' do api.ts.
+    """
+    paciente = crud.get_by_id(db, id=id)
+    if not paciente:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Paciente não encontrado",
+        )
+    crud.remove(db, id=id)
