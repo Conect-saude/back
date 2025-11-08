@@ -1,0 +1,22 @@
+# --- Framework ---
+fastapi
+uvicorn[standard]         # Servidor ASGI para rodar o FastAPI
+
+# --- Banco de Dados (ORM) ---
+sqlalchemy                # ORM para interagir com o banco
+psycopg2-binary           # Driver para conectar ao PostgreSQL (se for usar Postgres)
+#
+# Se preferir SQLite para testes iniciais, adicione:
+# alembic                 # Para migrações de banco (alterar tabelas)
+
+# --- Autenticação ---         
+python-jose[cryptography] # Para criar e verificar tokens JWT
+
+# --- Comunicação HTTP ---
+httpx                     # Cliente HTTP assíncrono (para chamar o ML e o LLM)
+
+# --- Configuração ---
+pydantic-settings         # Para carregar configurações do .env
+
+# --- Outros ---
+pydantic[email]           # Para validação de dados e emails
